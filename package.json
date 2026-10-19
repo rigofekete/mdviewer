@@ -1,0 +1,38 @@
+{
+  "name": "mdview",
+  "private": true,
+  "main": "dist/main.js",
+  "scripts": {
+    "start": "tsc -p tsconfig.json && pixel . --",
+    "launch": "pixel . --",
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@zenbu-labs/pixel": "^0.2.6",
+    "highlight.js": "^11.12.0",
+    "markdown-it": "^15.0.3",
+    "markdown-it-anchor": "^10.0.0",
+    "react": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/markdown-it": "^14.2.0",
+    "@types/node": "^22.0.0",
+    "@types/react": "^18.3.0",
+    "typescript": "^5.5.0"
+  },
+  "trustedDependencies": [
+    "@zenbu-labs/pixel"
+  ],
+  "allowScripts": {
+    "@zenbu-labs/pixel": true
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@zenbu-labs/pixel"
+    ]
+  },
+  "bin": {
+    "mdview": "bin/mdview.mjs"
+  }
+}
