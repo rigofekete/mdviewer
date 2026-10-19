@@ -1,8 +1,17 @@
 # mdview
 
-Render a Markdown file as a real web page **inside the terminal** with
-[Pixel](https://github.com/zenbu-labs/terminal-browser/tree/main/pixel), and open it
-next to Neovim with one keypress.
+Render a Markdown file as a real web page **inside the terminal** with [Pixel](https://github.com/zenbu-labs/terminal-browser/tree/main/pixel), and open it next to Neovim with one keypress.
+
+## Table of Contents
+
+- [Features](#features)
+- [Requirements](#requirements)
+- [Install](#install)
+- [Usage](#usage)
+- [LazyVim](#lazyvim)
+- [How it works](#how-it-works)
+- [Development](#development)
+- [Limitations](#limitations)
 
 ![mdview rendering a Markdown note in a terminal pane](docs/preview.png)
 
@@ -15,29 +24,26 @@ next to Neovim with one keypress.
 └────────────────────────┴───────────────────────────────────┘
 ```
 
-Pixel draws real pixels through the
-[kitty graphics protocol](https://sw.kovidgoyal.net/kitty/graphics-protocol/), so the
-page is rendered by Chromium — full CSS, tables, syntax highlighting — while living
-in a terminal pane instead of a separate window.
+Pixel draws real pixels through the [kitty graphics protocol](https://sw.kovidgoyal.net/kitty/graphics-protocol/), so the page is rendered by Chromium — full CSS, tables, syntax highlighting — while living in a terminal pane instead of a separate window.
+
+---
 
 ## Features
 
-- Markdown → HTML with `markdown-it` (GFM tables, task lists, autolinks, code fences)
-  and `highlight.js` for fenced code.
-- Terminal-native theme: colours are derived from the terminal palette, so the page
-  follows your Ghostty/herdr theme.
-- Native Pixel header bar (file name, line/word count, key hints) composed above the
-  Chromium `WebView`.
-- Live preview: polls the file and reloads in place, preserving scroll position, so
-  edits in Neovim show up without switching panes.
-- Opens in a split via Pixel's terminal API — herdr, tmux, Ghostty, kitty, WezTerm and
-  the other backends Pixel supports; falls back to the current pane.
+- Markdown → HTML with `markdown-it` (GFM tables, task lists, autolinks, code fences) and `highlight.js` for fenced code.
+- Terminal-native theme: colours are derived from the terminal palette, so the page follows your Ghostty/herdr theme.
+- Native Pixel header bar (file name, line/word count, key hints) composed above the Chromium `WebView`.
+- Live preview: polls the file and reloads in place, preserving scroll position, so edits in Neovim show up without switching panes.
+- Opens in a split via Pixel's terminal API — herdr, tmux, Ghostty, kitty, WezTerm and the other backends Pixel supports; falls back to the current pane.
+
+---
 
 ## Requirements
 
 - Linux or macOS, Node 20+.
-- A terminal with kitty-graphics support (Ghostty, kitty, WezTerm, iTerm2, Konsole,
-  Warp, …). Multiplexers (herdr, tmux) work with reduced performance.
+- A terminal with kitty-graphics support (Ghostty, kitty, WezTerm, iTerm2, Konsole, Warp, …). Multiplexers (herdr, tmux) work with reduced performance.
+
+---
 
 ## Install
 
@@ -47,6 +53,8 @@ cd ~/Work/dev/mdview
 npm install          # downloads the patched Electron runtime
 npm run build
 ```
+
+---
 
 ## Usage
 
@@ -72,6 +80,8 @@ Keys inside the preview:
 | `g` / `G` | top / bottom |
 | `+` / `-` / `0` | zoom in / out / reset |
 | `backspace` | back (after following an external link) |
+
+---
 
 ## LazyVim
 
@@ -101,16 +111,16 @@ return {
 
 Restart Neovim after adding it. `MDVIEW_BIN` overrides the binary path.
 
+---
+
 ## How it works
 
-1. `bin/mdview.mjs` detects the hosting terminal, asks for the current pane, splits it
-   and runs `pixel <app dir> -- <file>` there.
-2. `src/main.tsx` boots a Pixel root, renders a native header bar and a full-size
-   `WebView` pointed at a generated HTML file.
-3. `src/render.ts` converts the Markdown, injects CSS variables derived from the
-   terminal palette, and writes the page to `$TMPDIR/mdview/<hash>.html` with a
-   `<base href="file://…">` so relative images resolve.
+1. `bin/mdview.mjs` detects the hosting terminal, asks for the current pane, splits it and runs `pixel <app dir> -- <file>` there.
+2. `src/main.tsx` boots a Pixel root, renders a native header bar and a full-size `WebView` pointed at a generated HTML file.
+3. `src/render.ts` converts the Markdown, injects CSS variables derived from the terminal palette, and writes the page to `$TMPDIR/mdview/<hash>.html` with a `<base href="file://…">` so relative images resolve.
 4. A 350 ms poll re-renders and reloads when the file's mtime/size changes.
+
+---
 
 ## Development
 
@@ -125,11 +135,11 @@ bin/mdview.mjs --here README.md --shot /tmp/mdview.png --quit-after 9000
 
 Pixel reports the app's stderr at `~/.local/state/pixel/logs/mdview.stderr.log`.
 
+---
+
 ## Limitations
 
-- A Chromium renderer per preview: a few hundred MB. Pixel's native `Markdown`
-  component is far lighter but cannot match browser CSS.
-- External links navigate inside the preview (use `backspace` to go back); there is no
-  hand-off to the system browser yet.
+- A Chromium renderer per preview: a few hundred MB. Pixel's native `Markdown` component is far lighter but cannot match browser CSS.
+- External links navigate inside the preview (use `backspace` to go back); there is no hand-off to the system browser yet.
 - No search, file picker, export or per-file pane reuse.
 - Preview-only: editing happens in Neovim.
