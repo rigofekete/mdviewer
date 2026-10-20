@@ -92,50 +92,23 @@ Keys inside the preview:
 
 ## Preview target
 
-`mdview open` chooses where the preview runs:
+`mdview open` opens a native Ghostty window inside herdr by default, and splits the current pane everywhere else. A window avoids herdr's slow full-frame graphics fallback.
 
-| `--terminal` | Behavior |
+Set the target with any of:
+
+| How | Example |
 | --- | --- |
-| `auto` (default) | Inside herdr, open a native Ghostty window when `ghostty` is installed and `WAYLAND_DISPLAY`/`DISPLAY` is set. Otherwise split the current pane. |
-| `ghostty` | Force a native Ghostty window. Exits non-zero with a clear message if Ghostty or a graphical session is missing. |
-| `herdr` | Force the current pane split (the original behavior), even when a Ghostty window is available. |
+| Flag | `--terminal herdr` (`auto`, `ghostty`, `herdr`) |
+| Environment | `MDVIEW_TERMINAL=herdr` |
+| Config | `~/.config/mdview/config.json` → `{"terminal": "herdr"}` |
 
-Flags beat environment, environment beats the config file:
+Precedence: flag > environment > config > `auto`. The config path honours `$XDG_CONFIG_HOME`.
 
-1. `--terminal ...`
-2. `MDVIEW_TERMINAL=ghostty`
-3. `$XDG_CONFIG_HOME/mdview/config.json` (defaults to `~/.config/mdview/config.json`)
-4. `auto`
+- `herdr` keeps the preview in the integrated pane.
+- `ghostty` always opens a separate window; it errors if Ghostty is unavailable.
+- `--here` always runs in the current pane.
 
-To switch back to the integrated pane permanently, change one value:
-
-```json
-{"terminal": "herdr"}
-```
-
-Or for a single invocation, use `--terminal herdr` (or `MDVIEW_TERMINAL=herdr`). The same precedence applies to the LazyVim job, so no plugin edit is needed when you change your mind.
-
-### Why a window instead of a pane?
-
-Inside herdr, Pixel used a private pane-graphics API. herdr 0.9.2 removed it, so Pixel falls back to sending complete frames through the pty: every scroll frame is a pane-sized image that herdr parses, forwards and re-encodes. An active preview measured ~2.3 CPU cores and scrolling was unusable. A native Ghostty window is roughly 5x cheaper per pixel; a static preview idles at ~0% either way.
-
-`auto` only switches when it can help: herdr is present (`HERDR_PANE_ID`), Ghostty is on `PATH` or at `$GHOSTTY_BIN_DIR/ghostty`, and a graphical session exists. The window child gets no `HERDR_*` variables, so Pixel cannot take the herdr path.
-
-### Ghostty 1.3 has no CLI split
-
-Ghostty 1.3 exposes only `+new-window` as a CLI action; `new_split` and `new_tab` are keybind-only. The new window is tiled by the compositor (Hyprland in the measured setup), which is the practical "pane next to herdr".
-
-If you prefer a real Ghostty split, bind one and run mdview inside it:
-
-```ini
-# ~/.config/ghostty/config
-keybind = ctrl+shift+enter=new_split:right
-```
-
-```sh
-# in the new split
-bin/mdview.mjs ~/Work/notes/mods/pes5/animations.md --here
-```
+Ghostty 1.3 has no CLI split, so the window is tiled by the compositor. For a manual Ghostty split, bind `new_split` and run mdview with `--here` inside it.
 
 ---
 
