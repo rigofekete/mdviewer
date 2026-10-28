@@ -7,6 +7,7 @@ mdviewer renders Markdown as a styled web page beside Neovim. Save your changes 
 ## Contents
 
 - [Features](#features)
+- [Screenshots](#screenshots)
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Usage](#usage)
@@ -24,6 +25,18 @@ mdviewer renders Markdown as a styled web page beside Neovim. Save your changes 
 - **Side-by-side editing:** opens in a terminal split when supported, or in a Ghostty window.
 - **Navigation:** click table-of-contents links to jump to sections, or use keyboard shortcuts to scroll and zoom.
 - **Editor-friendly:** works with any editor that saves Markdown files; a LazyVim example is included below.
+
+## Screenshots
+
+The rendered README, with a clickable table of contents:
+
+![Rendered mdviewer README with table of contents](docs/screenshot-readme.png)
+
+An example document with a table and syntax-highlighted code:
+
+![Rendered example document with table and highlighted code](docs/screenshot-example.png)
+
+These images show the rendered document area; the terminal preview also has a header with the file name and shortcuts.
 
 ## Requirements
 
