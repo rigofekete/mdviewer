@@ -28,7 +28,7 @@ mdviewer renders Markdown as a styled web page beside Neovim. Save your changes 
 
 ## Screenshots
 
-The rendered README, with a clickable table of contents:
+The README rendered as a GUI preview in the terminal, with a clickable table of contents:
 
 ![Rendered mdviewer README with table of contents](docs/screenshot-readme.png)
 
