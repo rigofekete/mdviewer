@@ -57,6 +57,20 @@ npm run build
 
 The repository is called **mdviewer** in this guide. The executable is currently named `mdview.mjs`; no global install is required. Installing dependencies downloads Pixel's patched Electron runtime.
 
+### Troubleshooting: EXDEV during install
+
+If `npm install` fails in Pixel's postinstall script with `EXDEV: cross-device link not permitted`, your temporary directory (usually `/tmp`) and the project are on different filesystems. Pixel's installer tries to rename the downloaded Electron runtime between them, which cannot cross filesystem boundaries.
+
+Retry with a temporary directory on the same filesystem as the project. For a project stored on your home filesystem:
+
+```sh
+mkdir -p "$HOME/.cache/pixel-tmp"
+TMPDIR="$HOME/.cache/pixel-tmp" npm install
+npm run build
+```
+
+If your project is on another filesystem, choose a temporary directory on that filesystem instead. This sets `TMPDIR` only for the install command.
+
 ## Usage
 
 Run these commands from the repository directory:
