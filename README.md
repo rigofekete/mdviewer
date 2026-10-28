@@ -1,6 +1,6 @@
 # mdviewer
 
-**A live Markdown preview for Neovim, right in your terminal.**
+**A live GUI Markdown preview for Neovim, right in the terminal.**
 
 mdviewer renders Markdown as a styled web page beside Neovim. Save your changes and watch the preview update automatically, without leaving your terminal. It also works on its own or alongside any editor that saves Markdown files.
 
