@@ -297,6 +297,13 @@ ${CSS}
 </head>
 <body>
 <main>${body}</main>
+<script>
+// The base URL is the Markdown directory for images and relative links, but
+// fragment-only links must resolve against the generated preview instead.
+for (const link of document.querySelectorAll('a[href^="#"]')) {
+  link.href = location.href.split('#')[0] + link.getAttribute('href');
+}
+</script>
 </body>
 </html>`;
 

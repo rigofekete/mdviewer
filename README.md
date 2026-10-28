@@ -156,6 +156,7 @@ Restart Neovim after adding it. `MDVIEW_BIN` overrides the binary path.
 ```sh
 npm run build       # tsc → dist/
 npm run typecheck
+npm test            # Chromium required for navigation tests
 npm start           # build and run against the current directory
 
 # capture the rendered page to a PNG without looking at the terminal
