@@ -1,120 +1,106 @@
-# mdview
+# mdviewer
 
-Render a Markdown file as a real web page **inside the terminal** with [Pixel](https://github.com/zenbu-labs/terminal-browser/tree/main/pixel), and open it next to Neovim with one keypress.
+**A live Markdown preview for Neovim, right in your terminal.**
 
-## Table of Contents
+mdviewer renders Markdown as a styled web page beside Neovim. Save your changes and watch the preview update automatically, without leaving your terminal. It also works on its own or alongside any editor that saves Markdown files.
+
+## Contents
 
 - [Features](#features)
 - [Requirements](#requirements)
-- [Install](#install)
+- [Installation](#installation)
 - [Usage](#usage)
-- [Preview target](#preview-target)
-- [LazyVim](#lazyvim)
-- [How it works](#how-it-works)
+- [Preview options](#preview-options)
+- [Neovim and LazyVim](#neovim-and-lazyvim)
+- [Tech stack](#tech-stack)
 - [Development](#development)
 - [Limitations](#limitations)
 
-![mdview rendering a Markdown note in a terminal pane](docs/preview.png)
-
-```
-┌─ nvim ─────────────────┬─ mdview ──────────────────────────┐
-│ # PES5 Player …        │ md  animations.md  312 lines …    │
-│                        │ ─────────────────────────────────  │
-│                        │  PES5 Player Animations — Old      │
-│                        │  Failures, the Working Blender …   │
-└────────────────────────┴───────────────────────────────────┘
-```
-
-Pixel draws real pixels through the [kitty graphics protocol](https://sw.kovidgoyal.net/kitty/graphics-protocol/), so the page is rendered by Chromium — full CSS, tables, syntax highlighting — while living in a terminal pane instead of a separate window.
-
----
-
 ## Features
 
-- Markdown → HTML with `markdown-it` (GFM tables, task lists, autolinks, code fences) and `highlight.js` for fenced code.
-- Terminal-native theme: colours are derived from the terminal palette, so the page follows your Ghostty/herdr theme.
-- Native Pixel header bar (file name, line/word count, key hints) composed above the Chromium `WebView`.
-- Live preview: polls the file and reloads in place, preserving scroll position, so edits in Neovim show up without switching panes.
-- Opens in a split via Pixel's terminal API — herdr, tmux, Ghostty, kitty, WezTerm and the other backends Pixel supports — or in a native Ghostty window when launched from herdr; falls back to the current pane.
-
----
+- **Live preview:** updates when you save the file and keeps your scroll position.
+- **Readable rendering:** headings, tables, images, links, and syntax-highlighted code.
+- **Terminal themes:** uses colors from your terminal palette.
+- **Side-by-side editing:** opens in a terminal split when supported, or in a Ghostty window.
+- **Navigation:** click table-of-contents links to jump to sections, or use keyboard shortcuts to scroll and zoom.
+- **Editor-friendly:** works with any editor that saves Markdown files; a LazyVim example is included below.
 
 ## Requirements
 
-- Linux or macOS, Node 20+.
-- A terminal with kitty-graphics support (Ghostty, kitty, WezTerm, iTerm2, Konsole, Warp, …). Multiplexers (herdr, tmux) work with reduced performance.
+- Linux or macOS and Node.js 20 or newer.
+- A terminal with [kitty graphics protocol](https://sw.kovidgoyal.net/kitty/graphics-protocol/) support, such as Ghostty, kitty, WezTerm, iTerm2, Konsole, or Warp.
+- A compatible terminal or multiplexer for opening splits. If a split is unavailable, mdviewer opens in the current pane. Multiplexers such as herdr and tmux may be slower.
 
----
+## Installation
 
-## Install
+Clone the repository, install its dependencies, and build it:
 
 ```sh
-git clone <this repo> ~/Work/dev/mdview
-cd ~/Work/dev/mdview
-npm install          # downloads the patched Electron runtime
+git clone https://github.com/rigofekete/mdview.git mdviewer
+cd mdviewer
+npm install
 npm run build
 ```
 
----
+The repository is called **mdviewer** in this guide. The executable is currently named `mdview.mjs`; no global install is required. Installing dependencies downloads Pixel's patched Electron runtime.
 
 ## Usage
 
-```sh
-# open in a new pane to the right of the current one
-bin/mdview.mjs open ~/Work/notes/mods/pes5/animations.md --split right
+Run these commands from the repository directory:
 
-# other split directions / sizes
+```sh
+# Open a Markdown file beside your current terminal pane
+bin/mdview.mjs open path/to/document.md
+
+# Choose a split direction and size
 bin/mdview.mjs open README.md --split down --size 40
 
-# open in the current pane
+# Open in the current pane instead
 bin/mdview.mjs README.md --here
-
-# force a native Ghostty window (errors if Ghostty is unavailable)
-bin/mdview.mjs open README.md --terminal ghostty
-
-# force the current pane split, even inside herdr
-bin/mdview.mjs open README.md --terminal herdr
 ```
 
-Keys inside the preview:
+Use `bin/mdview.mjs --help` to see the available options. Save the Markdown file in your editor to refresh the preview.
+
+### Keyboard shortcuts
 
 | Key | Action |
 | --- | --- |
-| `q`, `esc` | quit and close the pane |
-| `r` | re-render from disk |
-| `j` / `k` | scroll down / up |
-| `d` / `u` | scroll a page |
-| `g` / `G` | top / bottom |
-| `+` / `-` / `0` | zoom in / out / reset |
-| `backspace` | back (after following an external link) |
+| `q`, `esc` | Quit the preview |
+| `r` | Reload the file |
+| `j` / `k` | Scroll down / up |
+| `d` / `u` | Scroll down / up by a page |
+| `g` / `G` | Go to the top / bottom |
+| `+` / `-` / `0` | Zoom in / out / reset |
+| `backspace` | Go back after following a link |
 
----
+## Preview options
 
-## Preview target
+By default, mdviewer tries to open a split. When running inside herdr with Ghostty available, it opens a native Ghostty window instead. If a split is not available, it falls back to the current pane.
 
-`mdview open` opens a native Ghostty window inside herdr by default, and splits the current pane everywhere else. A window avoids herdr's slow full-frame graphics fallback.
+```sh
+# Force a Ghostty window
+bin/mdview.mjs open README.md --terminal ghostty
 
-Set the target with any of:
+# Force a terminal split, including inside herdr
+bin/mdview.mjs open README.md --terminal herdr
 
-| How | Example |
+# Always use the current pane
+bin/mdview.mjs open README.md --here
+```
+
+You can set the target with a flag, an environment variable, or a config file:
+
+| Method | Example |
 | --- | --- |
-| Flag | `--terminal herdr` (`auto`, `ghostty`, `herdr`) |
+| Flag | `--terminal herdr` |
 | Environment | `MDVIEW_TERMINAL=herdr` |
-| Config | `~/.config/mdview/config.json` → `{"terminal": "herdr"}` |
+| Config | `~/.config/mdview/config.json`: `{"terminal": "herdr"}` |
 
-Precedence: flag > environment > config > `auto`. The config path honours `$XDG_CONFIG_HOME`.
+Supported values are `auto`, `ghostty`, and `herdr`. The flag takes precedence over the environment variable, which takes precedence over the config file. The config path respects `$XDG_CONFIG_HOME`. A forced Ghostty window requires Ghostty and a graphical session.
 
-- `herdr` keeps the preview in the integrated pane.
-- `ghostty` always opens a separate window; it errors if Ghostty is unavailable.
-- `--here` always runs in the current pane.
+## Neovim and LazyVim
 
-Ghostty 1.3 has no CLI split, so the window is tiled by the compositor. For a manual Ghostty split, bind `new_split` and run mdview with `--here` inside it.
-
----
-
-## LazyVim
-
-Add `~/.config/nvim/lua/plugins/mdview.lua`:
+This LazyVim example opens the current file with `<leader>mp`. Add it to `~/.config/nvim/lua/plugins/mdview.lua` and adjust the path to your clone:
 
 ```lua
 return {
@@ -128,48 +114,50 @@ return {
           if file == "" or vim.fn.filereadable(file) == 0 then
             return vim.notify("mdview: buffer is not a file on disk", vim.log.levels.WARN)
           end
-          local bin = vim.env.MDVIEW_BIN or (vim.fn.expand("~") .. "/Work/dev/mdview/bin/mdview.mjs")
+          local bin = vim.env.MDVIEW_BIN or (vim.fn.expand("~") .. "/mdviewer/bin/mdview.mjs")
           vim.fn.jobstart({ bin, "open", file, "--split", "right" }, { detach = true })
         end,
-        desc = "Markdown preview (mdview, split)",
+        desc = "Markdown preview (mdviewer)",
       },
     },
   },
 }
 ```
 
-Restart Neovim after adding it. `MDVIEW_BIN` overrides the binary path.
+Restart Neovim after adding the file. You can also set `MDVIEW_BIN` to the full path of `bin/mdview.mjs` instead of changing the example.
 
----
+## Tech stack
 
-## How it works
+| Technology | Purpose |
+| --- | --- |
+| TypeScript, React, and Node.js | Application and command-line launcher |
+| [Pixel](https://github.com/zenbu-labs/terminal-browser/tree/main/pixel) | Terminal UI, splits, and embedded web view |
+| Electron and Chromium | Render the preview as a web page |
+| [markdown-it](https://github.com/markdown-it/markdown-it) | Convert Markdown to HTML |
+| [highlight.js](https://highlightjs.org/) | Highlight fenced code blocks |
+| Kitty graphics protocol | Display the rendered page in the terminal |
 
-1. `bin/mdview.mjs` picks a preview target (a native Ghostty window inside herdr by default, otherwise a pane split), then runs `pixel <app dir> -- <file>` there. The pane path detects the hosting terminal and asks for its current pane first.
-2. `src/main.tsx` boots a Pixel root, renders a native header bar and a full-size `WebView` pointed at a generated HTML file.
-3. `src/render.ts` converts the Markdown, injects CSS variables derived from the terminal palette, and writes the page to `$TMPDIR/mdview/<hash>.html` with a `<base href="file://…">` so relative images resolve.
-4. A 350 ms poll re-renders and reloads when the file's mtime/size changes.
-
----
+mdviewer converts the file to HTML, applies colors from the terminal, and displays it in a Chromium web view. It checks the file for changes and reloads the preview when needed.
 
 ## Development
 
 ```sh
-npm run build       # tsc → dist/
-npm run typecheck
-npm test            # Chromium required for navigation tests
-npm start           # build and run against the current directory
-
-# capture the rendered page to a PNG without looking at the terminal
-bin/mdview.mjs --here README.md --shot /tmp/mdview.png --quit-after 9000
+npm run build       # Compile TypeScript into dist/
+npm run typecheck   # Check types without building
+npm test            # Run navigation tests (requires Chromium)
 ```
 
-Pixel reports the app's stderr at `~/.local/state/pixel/logs/mdview.stderr.log`.
+To capture a preview for debugging, pass the capture options after `--`:
 
----
+```sh
+bin/mdview.mjs --here README.md -- --shot /tmp/mdview.png --quit-after 9000
+```
+
+Pixel writes application errors to `~/.local/state/pixel/logs/mdview.stderr.log`.
 
 ## Limitations
 
-- A Chromium renderer per preview: a few hundred MB. Pixel's native `Markdown` component is far lighter but cannot match browser CSS.
-- External links navigate inside the preview (use `backspace` to go back); there is no hand-off to the system browser yet.
-- No search, file picker, export or per-file pane reuse.
-- Preview-only: editing happens in Neovim.
+- Each preview runs a Chromium renderer, which can use a few hundred MB of memory.
+- External links open inside the preview, not in your system browser. Press `backspace` to return.
+- There is no search, file picker, export, or per-file pane reuse yet.
+- This is a previewer, not an editor.
